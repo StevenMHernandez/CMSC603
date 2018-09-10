@@ -12,11 +12,11 @@ using namespace std;
 
 #define K_VALUE 4
 
-#define THREAD_COUNT 1
+//#define THREAD_COUNT 1
 //#define THREAD_COUNT 2
 //#define THREAD_COUNT 4
 //#define THREAD_COUNT 8
-//#define THREAD_COUNT 2048
+#define THREAD_COUNT 2048
 
 ArffData *dataset;
 int max_class_number;
@@ -40,7 +40,7 @@ void *run(void* ptr) {
     int range = ceil((float) dataset->num_instances() / THREAD_COUNT);
     int min = thread_identifier * range;
     int max = ((thread_identifier + 1) * range) - 1;
-    max = max > dataset->num_instances() ? dataset->num_instances() - 1 : max;
+    max = max >= dataset->num_instances() ? dataset->num_instances() - 1 : max;
 
 //    printf("%i - %i (out of %li)\n", min, max, dataset->num_instances());
 
