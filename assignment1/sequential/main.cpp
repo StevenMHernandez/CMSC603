@@ -9,7 +9,7 @@
 
 using namespace std;
 
-#define K_VALUE 1
+#define K_VALUE 4
 
 int euclideanDistance(ArffInstance *x, ArffInstance *xi) {
     float sum = 0;
