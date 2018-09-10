@@ -22,7 +22,7 @@ int euclideanDistance(ArffInstance *x, ArffInstance *xi) {
     return sqrt(sum);
 }
 
-int* KNN(ArffData* dataset)
+int* KNN(ArffData* dataset, int k_value)
 {
     int* predictions = (int*)malloc(dataset->num_instances() * sizeof(int));
 
@@ -38,10 +38,10 @@ int* KNN(ArffData* dataset)
     // for all data in the dataset
     for (int i = 0; i < dataset->num_instances(); i++) {
         // store the nearest neighbors for the instance
-        int neighbors_class[K_VALUE];
-        int neighbors_distance[K_VALUE];
+        int neighbors_class[k_value];
+        int neighbors_distance[k_value];
 
-        for (int n = 0; n < K_VALUE; n++) {
+        for (int n = 0; n < k_value; n++) {
             neighbors_class[n] = 0;
             neighbors_distance[n] = 0;
         }
@@ -54,7 +54,7 @@ int* KNN(ArffData* dataset)
                 int distance = euclideanDistance(dataset->get_instance(i), dataset->get_instance(j));
 
                 // sort into neighbors array
-                for (int n = 0; n < K_VALUE; n++) {
+                for (int n = 0; n < k_value; n++) {
                     if (distance < neighbors_distance[n]) {
                         int tempClassValue = neighbors_class[n];
                         int tempClassDistance = neighbors_distance[n];
@@ -73,7 +73,7 @@ int* KNN(ArffData* dataset)
         int *votes = (int*)calloc((max_class_number + 1), sizeof(int));
 
         // for each voted value
-        for (int n = 0; n < K_VALUE; n++) {
+        for (int n = 0; n < k_value; n++) {
             votes[neighbors_class[n]] += 1;
         }
 
@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
 
     clock_gettime(CLOCK_MONOTONIC_RAW, &start);
 
-    int* predictions = KNN(dataset);
+    int* predictions = KNN(dataset, K_VALUE);
     int* confusionMatrix = computeConfusionMatrix(predictions, dataset);
     float accuracy = computeAccuracy(confusionMatrix, dataset);
 
