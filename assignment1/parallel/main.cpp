@@ -23,7 +23,7 @@ int max_class_number;
 int* predictions;
 int global_k_value;
 
-int euclideanDistance(ArffInstance *x, ArffInstance *xi) {
+float euclideanDistance(ArffInstance *x, ArffInstance *xi) {
     float sum = 0;
 
     /*
