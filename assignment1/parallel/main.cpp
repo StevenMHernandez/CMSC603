@@ -10,13 +10,13 @@
 
 using namespace std;
 
-#define K_VALUE 4
+#define K_VALUE 5
 
 //#define THREAD_COUNT 1
-//#define THREAD_COUNT 2
+#define THREAD_COUNT 2
 //#define THREAD_COUNT 4
 //#define THREAD_COUNT 8
-#define THREAD_COUNT 2048
+//#define THREAD_COUNT 2048
 
 ArffData *dataset;
 int max_class_number;
@@ -25,9 +25,11 @@ int* predictions;
 int euclideanDistance(ArffInstance *x, ArffInstance *xi) {
     float sum = 0;
 
-    // for each attribute (not counting the class)
-    for (int i = 0; i < x->size() - 1; i++) {
-        sum += pow(x->get(i)->operator float(), xi->get(i)->operator float());
+    /*
+     * for each attribute (not counting the class)
+     */
+    for (int a = 0; a < x->size(); a++) {
+        sum += pow(x->get(a)->operator float() - xi->get(a)->operator float(), 2);
     }
 
     return sqrt(sum);
@@ -54,25 +56,27 @@ void *run(void* ptr) {
         for (int i = min; i <= max; i++) {
             // store the nearest neighbors for the instance
             int neighbors_class[k_value];
-            int neighbors_distance[k_value];
+            float neighbors_distance[k_value];
 
             for (int n = 0; n < k_value; n++) {
                 neighbors_class[n] = 0;
-                neighbors_distance[n] = 0;
+                neighbors_distance[n] = FLT_MAX;
             }
 
-            // compare to all other data in the dataset
+            /*
+             * compare to all other data in the dataset
+             */
             for (int j = 0; j < dataset->num_instances(); j++) {
                 // do not compare to itself
                 if (i != j) {
-                    int classValue = dataset->get_instance(i)->get(dataset->num_attributes() - 1)->operator int32();
-                    int distance = euclideanDistance(dataset->get_instance(i), dataset->get_instance(j));
+                    int classValue = dataset->get_instance(j)->get(dataset->num_attributes() - 1)->operator int32();
+                    float distance = euclideanDistance(dataset->get_instance(i), dataset->get_instance(j));
 
                     // sort into neighbors array
                     for (int n = 0; n < k_value; n++) {
                         if (distance < neighbors_distance[n]) {
                             int tempClassValue = neighbors_class[n];
-                            int tempClassDistance = neighbors_distance[n];
+                            float tempClassDistance = neighbors_distance[n];
 
                             neighbors_class[n] = classValue;
                             neighbors_distance[n] = distance;
@@ -99,6 +103,8 @@ void *run(void* ptr) {
                     max_class = v;
                 }
             }
+
+            free(votes);
 
             predictions[i] = max_class;
         }
