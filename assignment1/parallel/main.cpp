@@ -21,6 +21,7 @@ using namespace std;
 ArffData *dataset;
 int max_class_number;
 int* predictions;
+int global_k_value;
 
 int euclideanDistance(ArffInstance *x, ArffInstance *xi) {
     float sum = 0;
@@ -37,6 +38,7 @@ int euclideanDistance(ArffInstance *x, ArffInstance *xi) {
 
 void *run(void* ptr) {
     int thread_identifier = *(int *) ptr;
+    int k_value = global_k_value;
 
     // for a section of the dataset
     int range = ceil((float) dataset->num_instances() / THREAD_COUNT);
@@ -50,9 +52,6 @@ void *run(void* ptr) {
         // this thread doesn't need to do anything because each element of the dataset has already taken a previously existing thread.
         // i.e. more threads than data
     } else {
-        // TODO!
-        int k_value = K_VALUE;
-
         for (int i = min; i <= max; i++) {
             // store the nearest neighbors for the instance
             int neighbors_class[k_value];
@@ -115,6 +114,7 @@ void *run(void* ptr) {
 
 int* KNN(ArffData* dataset, int k_value)
 {
+    global_k_value = k_value;
     predictions = (int*)malloc(dataset->num_instances() * sizeof(int));
 
     // find max class number
