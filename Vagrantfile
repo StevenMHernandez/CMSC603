@@ -43,19 +43,19 @@ Vagrant.configure("2") do |config|
   # the path on the host to the actual folder. The second argument is
   # the path on the guest to mount the folder. And the optional third
   # argument is a set of non-required options.
-  # config.vm.synced_folder "../data", "/vagrant_data"
+  config.vm.synced_folder ".", "/CMSC603"
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
   # Example for VirtualBox:
-  #
-  # config.vm.provider "virtualbox" do |vb|
+  
+  config.vm.provider "virtualbox" do |vb|
   #   # Display the VirtualBox GUI when booting the machine
-  #   vb.gui = true
-  #
+    vb.gui = true
+  
   #   # Customize the amount of memory on the VM:
   #   vb.memory = "1024"
-  # end
+  end
   #
   # View the documentation for the provider you are using for more
   # information on available options.
@@ -63,8 +63,15 @@ Vagrant.configure("2") do |config|
   # Enable provisioning with a shell script. Additional provisioners such as
   # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
   # documentation for more information about their specific syntax and use.
-  # config.vm.provision "shell", inline: <<-SHELL
-  #   apt-get update
-  #   apt-get install -y apache2
-  # SHELL
+  config.vm.provision "shell", inline: <<-SHELL
+    apt-get update
+    apt-get upgrade -y
+    apt-get install -y ubuntu-desktop
+    apt-get install -y nvidia-cuda-toolkit nvidia-nsight nvidia-visual-profiler nvidia-cuda-gdb
+    wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/cuda-repo-ubuntu1804_10.0.130-1_amd64.deb
+    dpkg -i cuda-repo-ubuntu1804_10.0.130-1_amd64.deb
+    apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/7fa2af80.pub
+    apt-get update
+    apt-get install cuda -y
+  SHELL
 end
