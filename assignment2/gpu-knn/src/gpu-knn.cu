@@ -12,7 +12,7 @@ using namespace std;
 #define K_VALUE 5
 
 //d_input, d_output, d_num_attributes, d_k_value
-__global__ void knn(float *input, int *output, int num_attributes, int k_value) {
+__global__ void knn(float *input, int *output, int *num_attributes, int *k_value) {
 	int tid = (blockDim.x * blockIdx.x) + threadIdx.x;
 
 	output[tid] = tid;
@@ -114,13 +114,13 @@ int* KNN(ArffData* dataset, int k_value)
 	float *h_input, *d_input;
 	int *h_output, *d_output, *d_k_value, *d_num_attributes;
 
-	cudaMalloc(d_num_attributes, sizeof(int));
-	cudaMalloc(d_k_value, sizeof(int));
-	cudaMalloc(d_input, number_of_attributes * datast->num_instances() * sizeof(float));
-	cudaMalloc(d_output, datast->num_instances() * sizeof(float));
+	cudaMalloc(&d_num_attributes, sizeof(int));
+	cudaMalloc(&d_k_value, sizeof(int));
+	cudaMalloc(&d_input, number_of_attributes * dataset->num_instances() * sizeof(float));
+	cudaMalloc(&d_output, dataset->num_instances() * sizeof(float));
 
-	h_input = (float *) malloc(number_of_attributes * datast->num_instances() * sizeof(float));
-	h_output = (int *) malloc(datast->num_instances() * sizeof(int));
+	h_input = (float *) malloc(number_of_attributes * dataset->num_instances() * sizeof(float));
+	h_output = (int *) malloc(dataset->num_instances() * sizeof(int));
 
 	for (int i = 0; i < dataset->num_instances(); i++) {
 		ArffInstance *x = dataset->get_instance(i);
@@ -130,22 +130,22 @@ int* KNN(ArffData* dataset, int k_value)
 		}
 	}
 
-	*d_k_value = k_value;
-	cudaMemcpy(d_input, h_input, number_of_attributes * datast->num_instances() * sizeof(int));
+	cudaMemcpy(d_num_attributes, &number_of_attributes, sizeof(int), cudaMemcpyHostToDevice);
+	cudaMemcpy(d_k_value, &k_value, sizeof(int), cudaMemcpyHostToDevice);
+	cudaMemcpy(d_input, h_input, number_of_attributes * dataset->num_instances() * sizeof(float), cudaMemcpyHostToDevice);
 
 
 	/// Run kernel
 	int threadsPerBlock = 256;
-	int blocksPerGrid = max(dataset->num_instances() / threadsPerBlock);
+	int blocksPerGrid = ceil((double) dataset->num_instances() / (double) threadsPerBlock);
+	printf("Running kernel with %i blocks (%i threads each) for %i instances\n", blocksPerGrid, threadsPerBlock, dataset->num_instances());
 	knn<<<blocksPerGrid,threadsPerBlock>>>(d_input, d_output, d_num_attributes, d_k_value);
 
 
-	cudaMemcpy(h_output, d_output, datast->num_instances() * sizeof(int));
-
-
+	cudaMemcpy(h_output, d_output, dataset->num_instances() * sizeof(int), cudaMemcpyDeviceToHost);
 
 	for (int i = 0; i < dataset->num_instances(); i++) {
-		printf("Got %i expected %i\n", h_output[i], dataset->get_instance(i)->get(number_of_attributes + 1)->operator int())
+		printf("Got %i expected %i\n", h_output[i], dataset->get_instance(i)->get(number_of_attributes)->operator int32());
 	}
 
 	return predictions;
@@ -188,7 +188,7 @@ int main(int argc, char *argv[])
 //	}
 //
 //	ArffParser parser(argv[1]);
-	ArffParser parser("datasets/small.arff");
+	ArffParser parser("../datasets/small.arff");
 	ArffData *dataset = parser.parse();
 	struct timespec start, end;
 
