@@ -1,6 +1,6 @@
 #include <stdexcept>
 
-#include <arff_utils.h>
+#include "./arff_utils.h"
 
 // 2018
 

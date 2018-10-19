@@ -1,4 +1,4 @@
-#include <arff_scanner.h>
+#include "./arff_scanner.h"
 
 
 const char ArffScanner::NEWLINE = '\n';
