@@ -24,7 +24,6 @@ __device__ float euclideanDistance(float *x, float *xi, int num_attributes) {
     return sqrt(sum);
 }
 
-//d_input, d_output, d_num_attributes, d_k_value
 __global__ void knn(float *input, int *output, int *num_attributes, int *k_value, int *num_instances, int *max_class_number) {
 	int tid = (blockDim.x * blockIdx.x) + threadIdx.x;
 
@@ -41,7 +40,6 @@ __global__ void knn(float *input, int *output, int *num_attributes, int *k_value
             neighbors_class[n] = 0;
             neighbors_distance[n] = FLT_MAX;
         }
-
 
         /*
          * compare to all other data in the dataset
@@ -152,7 +150,7 @@ int* KNN(ArffData* dataset, int k_value)
 
 
 	/// Run kernel
-	int threadsPerBlock = 1;
+	int threadsPerBlock = 256;
 	int blocksPerGrid = ceil((double) dataset->num_instances() / (double) threadsPerBlock);
 	printf("Running kernel with %i blocks (%i threads each) for %i instances\n", blocksPerGrid, threadsPerBlock, dataset->num_instances());
 	knn<<<blocksPerGrid,threadsPerBlock>>>(d_input, d_output, d_num_attributes, d_k_value, d_num_instances, d_max_class_number);
@@ -192,16 +190,13 @@ float computeAccuracy(int* confusionMatrix, ArffData* dataset)
 
 int main(int argc, char *argv[])
 {
-	// TODO: re-add
-//	if(argc != 2)
-//	{
-//		cout << "Usage: ./main datasets/datasetFile.arff" << endl;
-//		exit(0);
-//	}
-//
-//	ArffParser parser(argv[1]);
-//	ArffParser parser("../datasets/medium.arff");
-	ArffParser parser("../datasets/small.arff");
+	if(argc != 2)
+	{
+		cout << "Usage: ./gpu-knn datasets/datasetFile.arff" << endl;
+		exit(0);
+	}
+
+	ArffParser parser(argv[1]);
 	ArffData *dataset = parser.parse();
 	struct timespec start, end;
 
