@@ -17,7 +17,7 @@ float euclideanDistance(ArffInstance *x, ArffInstance *xi) {
     /*
      * for each attribute (not counting the class)
      */
-    for (int a = 0; a < x->size(); a++) {
+    for (int a = 0; a < x->size() - 1; a++) {
         sum += pow(x->get(a)->operator float() - xi->get(a)->operator float(), 2);
     }
 

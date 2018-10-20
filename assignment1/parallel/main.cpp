@@ -12,10 +12,11 @@ using namespace std;
 
 #define K_VALUE 5
 
-//#define THREAD_COUNT 1
-#define THREAD_COUNT 2
+#define THREAD_COUNT 1
+//#define THREAD_COUNT 2
 //#define THREAD_COUNT 4
 //#define THREAD_COUNT 8
+//#define THREAD_COUNT 16
 //#define THREAD_COUNT 2048
 
 ArffData *dataset;
@@ -29,7 +30,7 @@ float euclideanDistance(ArffInstance *x, ArffInstance *xi) {
     /*
      * for each attribute (not counting the class)
      */
-    for (int a = 0; a < x->size(); a++) {
+    for (int a = 0; a < x->size() - 1; a++) {
         sum += pow(x->get(a)->operator float() - xi->get(a)->operator float(), 2);
     }
 
