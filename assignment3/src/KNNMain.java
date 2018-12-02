@@ -12,6 +12,8 @@ public class KNNMain {
         // SEE: https://stackoverflow.com/questions/11041253/set-hadoop-system-user-for-client-embedded-in-java-webapp
         System.setProperty("HADOOP_USER_NAME", "hadoop");
 
+        long startTime = System.nanoTime();
+
         Configuration conf = new Configuration();
         // conf.setLong(FileInputFormat.SPLIT_MAXSIZE, 4096);
         Job job = Job.getInstance(conf, "Word Count Example");
@@ -26,7 +28,13 @@ public class KNNMain {
 
         FileInputFormat.addInputPath(job, new Path(CONFIG.trainFile));
         FileOutputFormat.setOutputPath(job, new Path("hdfs://hadoop-master:9000/output/knn-out_".concat(Long.toString(System.currentTimeMillis())).concat(".txt")));
-        System.exit(job.waitForCompletion(true) ? 0 : 1);
+
+        boolean out = job.waitForCompletion(true);
+
+        long endTime = System.nanoTime();
+        System.out.println("Took " + ((float) endTime - startTime) / 1000000000 + " seconds");
+
+        System.exit(out ? 0 : 1);
     }
 }
 

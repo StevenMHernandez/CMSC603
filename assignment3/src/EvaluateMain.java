@@ -14,7 +14,7 @@ public class EvaluateMain {
         System.setProperty("HADOOP_USER_NAME", "hadoop");
 
         String inputFile = CONFIG.testFile;
-        String outputFile = "hdfs://hadoop-master:9000/output/knn-out_1543700094294.txt/part-r-00000";
+        String outputFile = "hdfs://hadoop-master:9000/output/knn-out_1543793777716.txt/part-r-00000";
         Configuration conf = new Configuration();
         FileSystem fs = FileSystem.get(URI.create(CONFIG.testFile), conf);
         InputStream inTest = null;
